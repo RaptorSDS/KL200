@@ -129,7 +129,7 @@ setUploadInterval(uint8_t interval)
 
 Sets the upload interval for the sensor in automatic mode (not applicable in manual mode).
 
-    Interval in 100ms units (e.g., 10 for 1 second)
+    Interval in 100ms units (e.g., 10 for 1 second)  ( only 1 to 100 allowed)
 
 Returns true if the setting was successful, false otherwise.
 
