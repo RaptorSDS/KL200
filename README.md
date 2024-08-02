@@ -196,7 +196,7 @@ setCommunicationMode(uint8_t mode)
 
 Sets the communication mode of the sensor.
 
-    0: UART mode
-    1: Relay mode
+    1: UART mode
+    0: Relay mode
 
 Returns true if the setting was successful, false otherwise.
