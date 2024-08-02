@@ -17,7 +17,8 @@ public:
     bool available();
     uint16_t getDistance();
     uint16_t getLastReceivedDistance();
-    bool factoryReset(uint8_t type);
+    bool HardReset(uint8_t type);
+    bool SoftReset(uint8_t type);
     bool setCommunicationMode(uint8_t mode);
 
 private:
