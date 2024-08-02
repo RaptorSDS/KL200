@@ -2,6 +2,8 @@
 
 This library provides an interface to the XKC KL200 laser distance sensor. It allows for easy communication and control of the sensor via an Arduino board.
 
+Developed by Tobias Baumann aka RaptorSDS and ChatGPT based on the XKC-KL-200 PDF version 10 from 2023. This project is not affiliated with XKC. No error correction has been implemented, so this project is in version 0.5 Beta.
+
 ## Features
 
 - Change sensor settings such as baud rate, LED mode, and relay mode.
