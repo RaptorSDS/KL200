@@ -7,7 +7,7 @@ void setup() {
     sensor.begin();
     Serial.println("Manual Mode Example");
 
-     if (sensor.setCommunicationMode(0)) {
+     if (sensor.setCommunicationMode(1)) {
         Serial.println("UART mode set successfully.");
     } else {
         Serial.println("Failed to set UART mode.");
