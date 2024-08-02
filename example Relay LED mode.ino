@@ -8,7 +8,7 @@ void setup() {
     Serial.println("Relay and LED Mode Example");
 
     // Set communication mode to Relay
-    if (sensor.setCommunicationMode(1)) {
+    if (sensor.setCommunicationMode(0)) {
         Serial.println("Relay mode set successfully.");
     } else {
         Serial.println("Failed to set Relay mode.");
@@ -22,7 +22,7 @@ void setup() {
     }
 
     // Set LED mode to "light always on"
-    if (sensor.setLEDMode(1)) {
+    if (sensor.setLEDMode(0)) {
         Serial.println("LED mode set successfully.");
     } else {
         Serial.println("Failed to set LED mode.");
