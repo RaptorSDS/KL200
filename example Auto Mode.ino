@@ -33,6 +33,7 @@ void setup() {
 
 void loop() {
     if (sensor.available()) {
+        sensor.readDistance();
         uint16_t lastDistance = sensor.getLastReceivedDistance();
         Serial.print("Distance: ");
         Serial.print(distance);
