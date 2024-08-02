@@ -185,7 +185,7 @@ factoryReset(uint8_t type)
 
 Performs a factory reset of the sensor.
 
-    0: Soft reset (preserves user settings)
+    0: Soft reset (reset to XKC settings)
     1: Hard reset (resets to factory settings)
 
 Returns true if the reset was successful, false otherwise.
