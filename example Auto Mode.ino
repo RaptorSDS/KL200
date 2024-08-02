@@ -7,6 +7,13 @@ void setup() {
     sensor.begin();
     Serial.println("Auto Mode Example");
 
+    // Set communication mode to UART
+    if (sensor.setCommunicationMode(0)) {
+        Serial.println("UART mode set successfully.");
+    } else {
+        Serial.println("Failed to set UART mode.");
+    }
+    
     // Enable automatic upload mode
     if (sensor.setUploadMode(true)) {
         Serial.println("Automatic upload mode set successfully.");
