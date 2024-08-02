@@ -72,7 +72,7 @@ Initializes the sensor.
 
 
 
-###
+### upload mode
 setUploadMode(bool mode)
 
 Sets the upload mode of the sensor.
@@ -85,7 +85,7 @@ Returns true if the setting was successful, false otherwise.
 
 
 
-###
+### Led mode
 setLEDMode(uint8_t mode)
 
 Sets the LED mode of the sensor.
@@ -100,7 +100,7 @@ Returns true if the setting was successful, false otherwise.
 
 
 
-###
+### Baud
 changeBaudRate(uint8_t rate)
 
 Changes the baud rate of the sensor.
@@ -120,7 +120,7 @@ Returns true if the setting was successful, false otherwise.
 
 
 
-###
+### Intervall
 setUploadInterval(uint8_t interval)
 
 Sets the upload interval for the sensor in automatic mode (not applicable in manual mode).
@@ -132,7 +132,7 @@ Returns true if the setting was successful, false otherwise.
 
 
 
-###
+### Relay output
 setRelayMode(uint8_t mode)
 
 Sets the relay mode of the sensor.
@@ -144,7 +144,7 @@ Returns true if the setting was successful, false otherwise.
 
 
 
-###
+### Distance
 readDistance()
 
 Reads the distance measurement from the sensor in manual mode.
@@ -154,7 +154,7 @@ Returns the distance in millimeters.
 
 
 
-###
+### availible
 available()
 
 Checks if there is data available from the sensor in automatic mode.
@@ -162,8 +162,8 @@ Checks if there is data available from the sensor in automatic mode.
 Returns true if data is available, false otherwise.
 
 
-
-###
+ 
+### Distance
 getDistance()
 
 Gets the distance measurement from the sensor in automatic mode.
@@ -172,7 +172,7 @@ Returns the distance in millimeters.
 
 
 
-###
+### Distance
 getLastReceivedDistance()
 
 Gets the last received distance measurement.
@@ -180,17 +180,18 @@ Gets the last received distance measurement.
 Returns the distance in millimeters.
 
 
-###
-factoryReset(uint8_t type)
+### Reset
+HardReset(uint8_t type)
+SoftReset(uint8_t type)
 
 Performs a factory reset of the sensor.
 
-    0: Soft reset (reset to XKC settings)
-    1: Hard reset (resets to factory settings)
+     Soft reset (reset to XKC settings)
+     Hard reset (resets to factory settings)
 
 Returns true if the reset was successful, false otherwise.
 
-###
+### Communication mode
 setCommunicationMode(uint8_t mode)
 
 Sets the communication mode of the sensor.
