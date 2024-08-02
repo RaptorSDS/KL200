@@ -7,6 +7,11 @@ void setup() {
     sensor.begin();
     Serial.println("Manual Mode Example");
 
+     if (sensor.setCommunicationMode(0)) {
+        Serial.println("UART mode set successfully.");
+    } else {
+        Serial.println("Failed to set UART mode.");
+    }
     // Disable automatic upload mode
     if (sensor.setUploadMode(false)) {
         Serial.println("Manual upload mode set successfully.");
@@ -24,8 +29,7 @@ void setup() {
 }
 
 void loop() {
-    sensor.getDistance();
-    uint16_t distance = sensor.readDistance();
+    uint16_t distance = sensor.readDistance(); //send request and get responce in mm
     Serial.print("Distance: ");
     Serial.print(distance);
     Serial.println(" mm");
