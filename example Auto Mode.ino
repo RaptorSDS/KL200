@@ -8,7 +8,7 @@ void setup() {
     Serial.println("Auto Mode Example");
 
     // Set communication mode to UART
-    if (sensor.setCommunicationMode(0)) {
+    if (sensor.setCommunicationMode(1)) {
         Serial.println("UART mode set successfully.");
     } else {
         Serial.println("Failed to set UART mode.");
@@ -19,6 +19,12 @@ void setup() {
         Serial.println("Automatic upload mode set successfully.");
     } else {
         Serial.println("Failed to set automatic upload mode.");
+    }
+        // Set LED mode to "light on "
+    if (sensor.setLEDMode(3)) {
+        Serial.println("LED mode set successfully.");
+    } else {
+        Serial.println("Failed to set LED mode.");
     }
 
     // Hinweis auf mögliche Probleme beim Konfigurieren im automatischen Modus
