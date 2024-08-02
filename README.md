@@ -23,6 +23,10 @@ The relay can be configured to operate in different modes:
     Mode 0: Relay activates when there is induction.
     Mode 1: Relay deactivates when there is induction.
 
+
+### its not possible to use both uart and relay same time because both use TX of Sensor
+    
+
 ## Features
 
 - Change sensor settings such as baud rate, LED mode, and relay mode.
