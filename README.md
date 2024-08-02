@@ -4,11 +4,30 @@ This library provides an interface to the XKC KL200 laser distance sensor. It al
 
 Developed by Tobias Baumann aka RaptorSDS and ChatGPT based on the XKC-KL-200 PDF version 10 from 2023. This project is not affiliated with XKC. No error correction has been implemented, so this project is in version 0.5 Beta.
 
+
+## Modes
+UART Mode
+
+In UART mode, the sensor communicates via the serial interface. This mode supports both manual and automatic data upload modes.
+
+    Manual Mode: The sensor sends data only when requested.
+    Automatic Mode: The sensor continuously sends data at a set interval.
+
+Relay Mode
+
+In Relay mode, the sensor operates as a simple switch and does not send distance data. Instead, it activates or deactivates a relay based on the detection conditions.
+Relay Output Modes
+
+The relay can be configured to operate in different modes:
+
+    Mode 0: Relay activates when there is induction.
+    Mode 1: Relay deactivates when there is induction.
+
 ## Features
 
 - Change sensor settings such as baud rate, LED mode, and relay mode.
-- Switch between manual and automatic data upload modes.
-- Read distance measurements from the sensor.
+- Switch between manual and automatic data upload modes. (Only UART)
+- Read distance measurements from the sensor. (only UART)
 - Implement safety checks for settings (e.g., baud rate, LED mode).
 
 ## Installation
@@ -29,7 +48,7 @@ Developed by Tobias Baumann aka RaptorSDS and ChatGPT based on the XKC-KL-200 PD
 
 
 
-Initialize the Sensor
+###Initialize the Sensor
 
 Create an instance of the XKC_KL200 class, passing the hardware serial interface to the constructor:
 
@@ -53,7 +72,7 @@ Initializes the sensor.
 
 
 
-
+###
 setUploadMode(bool mode)
 
 Sets the upload mode of the sensor.
@@ -66,7 +85,7 @@ Returns true if the setting was successful, false otherwise.
 
 
 
-
+###
 setLEDMode(uint8_t mode)
 
 Sets the LED mode of the sensor.
@@ -81,7 +100,7 @@ Returns true if the setting was successful, false otherwise.
 
 
 
-
+###
 changeBaudRate(uint8_t rate)
 
 Changes the baud rate of the sensor.
@@ -101,7 +120,7 @@ Returns true if the setting was successful, false otherwise.
 
 
 
-
+###
 setUploadInterval(uint8_t interval)
 
 Sets the upload interval for the sensor in automatic mode (not applicable in manual mode).
@@ -113,7 +132,7 @@ Returns true if the setting was successful, false otherwise.
 
 
 
-
+###
 setRelayMode(uint8_t mode)
 
 Sets the relay mode of the sensor.
@@ -125,7 +144,7 @@ Returns true if the setting was successful, false otherwise.
 
 
 
-
+###
 readDistance()
 
 Reads the distance measurement from the sensor in manual mode.
@@ -135,7 +154,7 @@ Returns the distance in millimeters.
 
 
 
-
+###
 available()
 
 Checks if there is data available from the sensor in automatic mode.
@@ -144,7 +163,7 @@ Returns true if data is available, false otherwise.
 
 
 
-
+###
 getDistance()
 
 Gets the distance measurement from the sensor in automatic mode.
@@ -153,10 +172,30 @@ Returns the distance in millimeters.
 
 
 
-
+###
 getLastReceivedDistance()
 
 Gets the last received distance measurement.
 
 Returns the distance in millimeters.
 
+
+###
+factoryReset(uint8_t type)
+
+Performs a factory reset of the sensor.
+
+    0: Soft reset (preserves user settings)
+    1: Hard reset (resets to factory settings)
+
+Returns true if the reset was successful, false otherwise.
+
+###
+setCommunicationMode(uint8_t mode)
+
+Sets the communication mode of the sensor.
+
+    0: UART mode
+    1: Relay mode
+
+Returns true if the setting was successful, false otherwise.
