@@ -1,208 +1,112 @@
 # XKC_KL200 Arduino Library
 
-This library provides an interface to the XKC KL200 laser distance sensor. It allows for easy communication and control of the sensor via an Arduino board.
+This library provides an interface to the XKC KL200 laser distance sensor (XKC-KL200-2M-UART). It allows for easy communication and control of the sensor via an Arduino board.
 
-Developed by Tobias Baumann aka RaptorSDS and ChatGPT based on the XKC-KL-200 PDF version 10 from 2023. This project is not affiliated with XKC. Some Error correction implemented , so this project is in version 1 Beta.
+Developed by Tobias Baumann aka RaptorSDS based on the XKC-KL200 PDF version 10 from 2023 (see folder `from XKC`). This project is not affiliated with XKC.
 
-please look at example and comments 
+Old versions of the library are kept in the folder `Archiv` (outside of `src`, so they are not compiled).
 
+## Wiring
+
+| Wire   | Function                                                    |
+|--------|-------------------------------------------------------------|
+| Brown  | VCC 5-24 V                                                  |
+| Blue   | GND                                                         |
+| Yellow | Sensor TX / switch output -> board RX (approx. 1k pull-up to MCU VCC) |
+| Black  | Sensor RX <- board TX                                       |
+
+Default serial settings: 9600 baud, 8N1.
+
+## Protocol
+
+Every frame has 9 bytes:
+
+| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| 0x62 (0x61 for line/trailing mode) | command | length 0x09 | address high | address low | data high | data low | answer (0x66 = OK) | XOR of bytes 0-7 |
+
+A distance frame looks like `62 33 09 00 00 DH DL 00 XOR`, distance in mm = `DH << 8 | DL`.
+
+The library synchronises on the header and length byte, checks the checksum and recovers automatically if bytes are lost or garbage is received.
 
 ## Modes
-UART Mode
 
-In UART mode, the sensor communicates via the serial interface. This mode supports both manual and automatic data upload modes.
+**UART mode** – the sensor communicates via the serial interface.
 
-    Manual Mode: The sensor sends data only when requested.
-    Automatic Mode: The sensor continuously sends data at a set interval.
+* Manual mode: the sensor sends data only when requested (`readDistance()`).
+* Automatic mode: the sensor continuously sends data at a set interval (`available()` / `getDistance()`).
 
-Relay Mode
+**Relay mode** – the yellow wire works as a simple switch output, no distance data.
 
-In Relay mode, the sensor operates as a simple switch and does not send distance data. Instead, it activates or deactivates a relay based on the detection conditions.
-Relay Output Modes
-
-The relay can be configured to operate in different modes:
-
-    Mode 0: Relay activates when there is induction.
-    Mode 1: Relay deactivates when there is induction.
-
-
-### its not possible to use both uart and relay same time because both use TX of Sensor
-    
-
-## Features
-
-- Change sensor settings such as baud rate, LED mode, and relay mode.
-- Switch between manual and automatic data upload modes. (Only UART)
-- Read distance measurements from the sensor. (only UART)
-- Implement safety checks for settings (e.g., baud rate, LED mode).
+It is not possible to use UART and relay at the same time, because both use the TX wire of the sensor.
 
 ## Installation
 
 1. Download the library as a ZIP file from the GitHub repository.
-2. Open the Arduino IDE.
-3. Go to `Sketch` -> `Include Library` -> `Add .ZIP Library...`.
-4. Select the downloaded ZIP file.
-5. The library is now installed and ready to use.
+2. Arduino IDE: `Sketch` -> `Include Library` -> `Add .ZIP Library...`.
+3. Examples are found under `File` -> `Examples` -> `XKC_KL200`.
 
 ## Usage
 
-### Include the Library
-
-
+```cpp
 #include <XKC_KL200.h>
 
-
-
-
-###Initialize the Sensor
-
-Create an instance of the XKC_KL200 class, passing the hardware serial interface to the constructor:
-
-XKC_KL200 sensor(Serial);
-
-In the setup() function, initialize the sensor with the desired baud rate:
-
-
-
+XKC_KL200 sensor(Serial1);          // HardwareSerial, begin() sets the baud rate
+// SoftwareSerial s(10, 11); XKC_KL200 sensor(s);   // Uno/Nano: call s.begin(9600) yourself
 
 void setup() {
-    Serial.begin(9600);
-    sensor.begin();
+    Serial.begin(115200);
+    sensor.begin(9600);
+    sensor.setDistanceRange(1, 2200);   // drop implausible values
+    sensor.setCommunicationMode(1);     // UART
+    sensor.setUploadMode(false);        // manual
 }
 
-Functions
-begin()
-
-Initializes the sensor.
-
-
-
-
-### upload mode
-setUploadMode(bool mode)
-
-Sets the upload mode of the sensor.
-
-    true for automatic upload mode
-    false for manual upload mode
-
-Returns true if the setting was successful, false otherwise.
-
-
-
-
-### Led mode
-setLEDMode(uint8_t mode)
-
-Sets the LED mode of the sensor.
-
-    0: Light on when there is induction
-    1: Light always on
-    2: Light always off
-    3: Flashing
-
-Returns true if the setting was successful, false otherwise.
-
-
-
-
-### Baud
-changeBaudRate(uint8_t rate)
-
-Changes the baud rate of the sensor.
-
-    0: 1200
-    1: 2400
-    2: 4800
-    3: 9600
-    4: 14400
-    5: 19200
-    6: 38400
-    7: 57600
-    8: 115200
-    9: 230400
-
-Returns true if the setting was successful, false otherwise.
-
-
-
-### Intervall
-setUploadInterval(uint8_t interval)
-
-Sets the upload interval for the sensor in automatic mode (not applicable in manual mode).
-
-    Interval in 100ms units (e.g., 10 for 1 second)  ( only 1 to 100 allowed)
-
-Returns true if the setting was successful, false otherwise.
-
-
-
-
-### Relay output
-setRelayMode(uint8_t mode)
-
-Sets the relay mode of the sensor.
-
-    0: Start when there is induction
-    1: Stop when there is induction
-
-Returns true if the setting was successful, false otherwise.
-
-
-
-### Distance
-readDistance()
-
-Reads the distance measurement from the sensor in manual mode.
-
-Returns the distance in millimeters.
-
-
-
-
-### availible
-available()
-
-Checks if there is data available from the sensor in automatic mode.
-
-Returns true if data is available, false otherwise.
-
-
- 
-### Distance
-getDistance()
-
-Gets the distance measurement from the sensor in automatic mode.
-
-Returns the distance in millimeters.
-
-
-
-### Distance
-getLastReceivedDistance()
-
-Gets the last received distance measurement.
-
-Returns the distance in millimeters.
-
-
-### Reset
-HardReset(uint8_t type)
-SoftReset(uint8_t type)
-
-Performs a factory reset of the sensor.
-
-     Soft reset (reset to XKC settings)
-     Hard reset (resets to factory settings)
-
-Returns true if the reset was successful, false otherwise.
-
-### Communication mode
-setCommunicationMode(uint8_t mode)
-
-Sets the communication mode of the sensor.
-
-    1: UART mode
-    0: Relay mode
-
-Returns true if the setting was successful, false otherwise.
+void loop() {
+    uint16_t mm = sensor.readDistance();
+    if (mm > 0) Serial.println(mm);
+    else        Serial.println(sensor.getLastError());
+    delay(200);
+}
+```
+
+Do not use the same `Serial` for the sensor and debug output.
+
+## Return values
+
+All configuration functions return a `uint8_t` error code. **`XKC_SUCCESS` is 0**, so check with `== XKC_SUCCESS`, not with `if (sensor.setX())`.
+
+| Code | Name                  | Meaning                         |
+|------|-----------------------|---------------------------------|
+| 0    | XKC_SUCCESS           | OK, sensor answered with 0x66   |
+| 1    | XKC_INVALID_PARAMETER | parameter out of range          |
+| 2    | XKC_TIMEOUT           | no answer                       |
+| 3    | XKC_CHECKSUM_ERROR    | only frames with wrong checksum |
+| 4    | XKC_RESPONSE_ERROR    | answer without 0x66             |
+| 5    | XKC_OUT_OF_RANGE      | distance outside `setDistanceRange()` |
+
+## Functions
+
+| Function | Description |
+|----------|-------------|
+| `XKC_KL200(HardwareSerial&, address = 0xFFFF)` | constructor, 0xFFFF = broadcast |
+| `XKC_KL200(Stream&, address = 0xFFFF)` | constructor for SoftwareSerial etc. |
+| `begin(baud = 9600)` | start communication |
+| `setCommunicationMode(mode)` | 0 = relay mode, 1 = UART mode |
+| `setUploadMode(bool)` | true = automatic upload, false = manual query |
+| `setUploadInterval(1..100)` | interval in 100 ms steps (100 ms .. 10 s) |
+| `setLEDMode(mode)` | 0 = on when detecting, 1 = off when detecting, 2 = always off, 3 = always on |
+| `setRelayMode(mode)` | 0 = active when detecting, 1 = inactive when detecting |
+| `setTrailingMode(mode)` | 0 = high precision, 1 = normal, 2 = high stability |
+| `changeBaudRate(0..9)` | 0=2400 1=4800 2=9600 3=14400 4=19200 5=38400 6=56000 7=57600 8=115200 9=128000; HardwareSerial is switched automatically |
+| `changeAddress(0..65534)` | change sensor address |
+| `hardReset()` | restore XKC factory default (FE) |
+| `softReset()` | restore user default (FD) |
+| `setDistanceRange(min, max)` | valid distance range in mm, default 1..65535 |
+| `readDistance(timeout = 1000)` | manual mode: query distance, returns mm or 0 on error |
+| `available()` | non-blocking, processes received bytes, true if a new distance is waiting |
+| `getDistance()` | returns the distance and clears `available()` |
+| `getLastReceivedDistance()` | last valid distance |
+| `getLastRawValue()` | raw value of the last distance frame (also out of range) |
+| `getLastError()` | error code of the last operation |
+| `getChecksumErrorCount()` | number of dropped frames (diagnostics) |
