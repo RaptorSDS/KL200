@@ -13,7 +13,6 @@ void setup() {
     sensorSerial.begin(9600);   // bei Stream-Objekten selbst starten
     sensor.begin();
 
-    sensor.setDistanceRange(1, 2200);
     sensor.setCommunicationMode(1);
     sensor.setUploadMode(false);
 }

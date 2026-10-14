@@ -14,8 +14,6 @@ XKC_KL200::XKC_KL200(HardwareSerial& serial, uint16_t address) :
     _distance(0),
     _lastReceivedDistance(0),
     _lastRawValue(0),
-    _minDistance(1),
-    _maxDistance(0xFFFF),
     _lastError(XKC_SUCCESS),
     _checksumErrors(0),
     _rxIndex(0) {}
@@ -29,8 +27,6 @@ XKC_KL200::XKC_KL200(Stream& serial, uint16_t address) :
     _distance(0),
     _lastReceivedDistance(0),
     _lastRawValue(0),
-    _minDistance(1),
-    _maxDistance(0xFFFF),
     _lastError(XKC_SUCCESS),
     _checksumErrors(0),
     _rxIndex(0) {}
@@ -112,11 +108,6 @@ uint8_t XKC_KL200::setTrailingMode(uint8_t mode) {
     return sendAndWait(XKC_HEADER_A, XKC_CMD_TRAILING_MODE, mode);
 }
 
-void XKC_KL200::setDistanceRange(uint16_t minDistance, uint16_t maxDistance) {
-    _minDistance = minDistance;
-    _maxDistance = maxDistance;
-}
-
 uint16_t XKC_KL200::readDistance(unsigned long timeout) {
     if (!_autoMode) {
         // Alte Bytes verwerfen, damit wir die Antwort auf genau diese Abfrage lesen
@@ -129,7 +120,7 @@ uint16_t XKC_KL200::readDistance(unsigned long timeout) {
         return 0;
     }
     if (!handleDistanceFrame(_rxBuffer)) {
-        _lastError = XKC_OUT_OF_RANGE;
+        _lastError = XKC_INVALID_DISTANCE;
         return 0;
     }
     _available = false;
@@ -274,7 +265,8 @@ bool XKC_KL200::handleDistanceFrame(const uint8_t* frame) {
     uint16_t rawDistance = ((uint16_t)frame[5] << 8) | frame[6];
     _lastRawValue = rawDistance;
 
-    if (rawDistance < _minDistance || rawDistance > _maxDistance) {
+    // 0 = keine Messung, als int16 negativ (>= 0x8000) = ungültig
+    if (rawDistance == 0 || (int16_t)rawDistance < 0) {
         return false;
     }
 

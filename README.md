@@ -4,6 +4,21 @@ This library provides an interface to the XKC KL200 laser distance sensor (XKC-K
 
 Developed by Tobias Baumann aka RaptorSDS based on the XKC-KL200 PDF version 10 from 2023 (see folder `from XKC`). This project is not affiliated with XKC.
 
+### Optimisations and bug fixes by Claude Code (October 2026)
+
+The library was reviewed and revised with [Claude Code](https://claude.com/claude-code), compared against the datasheet and a working sketch on real hardware:
+
+* Fixed compile error: `available()` was defined twice
+* Fixed examples: `XKC_SUCCESS` is 0, so `if (sensor.setX())` reported the opposite result; undefined variable `distance` in the auto mode example
+* Robust frame parser: sync on header `0x62` + length `0x09`, XOR check, automatic resync after lost bytes or garbage, non-blocking
+* Command acknowledgements are found correctly while distance frames are streaming in automatic mode
+* Distance of 0 or negative values are dropped as invalid
+* New: SoftwareSerial / Stream support, device address, `setTrailingMode()`, `getLastError()`, `getLastRawValue()`, `getChecksumErrorCount()`
+* `changeBaudRate()` switches the HardwareSerial port automatically
+* Corrected baud rate and LED tables according to the datasheet
+* Examples moved to `examples/<Name>/<Name>.ino` so they appear in the Arduino IDE; `library.properties` fixed (`architectures=*`)
+* Old archive moved out of `src` (it was compiled as well)
+
 Old versions of the library are kept in the folder `Archiv` (outside of `src`, so they are not compiled).
 
 ## Wiring
@@ -28,6 +43,8 @@ Every frame has 9 bytes:
 A distance frame looks like `62 33 09 00 00 DH DL 00 XOR`, distance in mm = `DH << 8 | DL`.
 
 The library synchronises on the header and length byte, checks the checksum and recovers automatically if bytes are lost or garbage is received.
+
+A distance of 0 or a negative value (raw value >= 0x8000 interpreted as signed 16 bit) is treated as invalid and dropped. Any further plausibility check (e.g. maximum distance for your installation) belongs in your own sketch.
 
 ## Modes
 
@@ -57,7 +74,6 @@ XKC_KL200 sensor(Serial1);          // HardwareSerial, begin() sets the baud rat
 void setup() {
     Serial.begin(115200);
     sensor.begin(9600);
-    sensor.setDistanceRange(1, 2200);   // drop implausible values
     sensor.setCommunicationMode(1);     // UART
     sensor.setUploadMode(false);        // manual
 }
@@ -83,7 +99,7 @@ All configuration functions return a `uint8_t` error code. **`XKC_SUCCESS` is 0*
 | 2    | XKC_TIMEOUT           | no answer                       |
 | 3    | XKC_CHECKSUM_ERROR    | only frames with wrong checksum |
 | 4    | XKC_RESPONSE_ERROR    | answer without 0x66             |
-| 5    | XKC_OUT_OF_RANGE      | distance outside `setDistanceRange()` |
+| 5    | XKC_INVALID_DISTANCE  | distance is 0 or negative (raw value >= 0x8000) |
 
 ## Functions
 
@@ -102,11 +118,10 @@ All configuration functions return a `uint8_t` error code. **`XKC_SUCCESS` is 0*
 | `changeAddress(0..65534)` | change sensor address |
 | `hardReset()` | restore XKC factory default (FE) |
 | `softReset()` | restore user default (FD) |
-| `setDistanceRange(min, max)` | valid distance range in mm, default 1..65535 |
 | `readDistance(timeout = 1000)` | manual mode: query distance, returns mm or 0 on error |
 | `available()` | non-blocking, processes received bytes, true if a new distance is waiting |
 | `getDistance()` | returns the distance and clears `available()` |
 | `getLastReceivedDistance()` | last valid distance |
-| `getLastRawValue()` | raw value of the last distance frame (also out of range) |
+| `getLastRawValue()` | raw value of the last distance frame (also if invalid) |
 | `getLastError()` | error code of the last operation |
 | `getChecksumErrorCount()` | number of dropped frames (diagnostics) |

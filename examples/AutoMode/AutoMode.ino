@@ -29,7 +29,6 @@ void setup() {
     Serial.println("XKC-KL200 Auto Mode Example");
 
     sensor.begin(9600);                // Standard-Baudrate des Sensors
-    sensor.setDistanceRange(1, 2200);  // unplausible Werte verwerfen (Messbereich 10-2000mm)
 
     printResult("UART-Modus", sensor.setCommunicationMode(1));
     printResult("Intervall 500ms", sensor.setUploadInterval(5));

@@ -45,7 +45,7 @@ enum XKC_KL200_Error {
     XKC_TIMEOUT = 2,           // Timeout bei der Kommunikation
     XKC_CHECKSUM_ERROR = 3,    // Prüfsummenfehler
     XKC_RESPONSE_ERROR = 4,    // Ungültige Antwort vom Sensor
-    XKC_OUT_OF_RANGE = 5       // Messwert ausserhalb des gültigen Bereichs
+    XKC_INVALID_DISTANCE = 5   // Distanz ungültig (0 oder negativ)
 };
 
 class XKC_KL200 {
@@ -129,12 +129,6 @@ public:
     uint8_t setTrailingMode(uint8_t mode);
 
     /**
-     * @brief Gültiger Messbereich. Werte ausserhalb werden verworfen.
-     *        Standard: 1..65535 mm (0 wird verworfen, wie "keine Messung")
-     */
-    void setDistanceRange(uint16_t minDistance, uint16_t maxDistance);
-
-    /**
      * @brief Fragt die Distanz im manuellen Modus ab (blockierend bis timeout)
      *        Im Auto-Modus wird stattdessen auf den nächsten Frame gewartet.
      * @return Distanz in mm oder 0 bei Fehler (Details: getLastError())
@@ -164,7 +158,7 @@ public:
     uint16_t getLastReceivedDistance();
 
     /**
-     * @brief Rohdaten (Daten High/Low) des letzten Distanz-Frames, z.B. für Hex-Ausgabe
+     * @brief Rohdaten (Daten High/Low) des letzten Distanz-Frames, auch wenn ungültig
      */
     uint16_t getLastRawValue();
 
@@ -192,8 +186,6 @@ private:
     uint16_t _distance;
     uint16_t _lastReceivedDistance;
     uint16_t _lastRawValue;
-    uint16_t _minDistance;
-    uint16_t _maxDistance;
     uint8_t _lastError;
     uint16_t _checksumErrors;
 
@@ -222,7 +214,8 @@ private:
     uint8_t waitForFrame(uint8_t expectedCmd, unsigned long timeout);
 
     /**
-     * @brief Wertet einen Distanz-Frame aus
+     * @brief Wertet einen Distanz-Frame aus. Ungültig sind 0 und
+     *        negative Werte (als int16 betrachtet, d.h. >= 0x8000)
      * @return true wenn die Distanz gültig war
      */
     bool handleDistanceFrame(const uint8_t* frame);

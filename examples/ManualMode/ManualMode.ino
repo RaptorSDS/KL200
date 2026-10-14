@@ -16,7 +16,6 @@ void setup() {
     Serial.println("XKC-KL200 Manual Mode Example");
 
     sensor.begin(9600);
-    sensor.setDistanceRange(1, 2200);
 
     if (sensor.setCommunicationMode(1) != XKC_SUCCESS) {
         Serial.println("UART-Modus konnte nicht gesetzt werden");
